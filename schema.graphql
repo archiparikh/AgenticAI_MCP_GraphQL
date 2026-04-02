@@ -1,0 +1,117 @@
+"""
+Reference GraphQL schema for the Planning Workflow API.
+
+This schema is used by mcp_server.py to document the expected shape of the
+remote GraphQL endpoint.  Point GRAPHQL_ENDPOINT at any compatible server
+(e.g. Hasura, PostGraphile, or a custom service) and the MCP tools will
+work without further changes.
+"""
+
+# ---------------------------------------------------------------------------
+# Scalars
+# ---------------------------------------------------------------------------
+scalar DateTime
+scalar UUID
+
+# ---------------------------------------------------------------------------
+# Enums
+# ---------------------------------------------------------------------------
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  BLOCKED
+  DONE
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+# ---------------------------------------------------------------------------
+# Types
+# ---------------------------------------------------------------------------
+type Plan {
+  id: UUID!
+  title: String!
+  description: String
+  owner: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  tasks: [Task!]!
+}
+
+type Task {
+  id: UUID!
+  planId: UUID!
+  title: String!
+  description: String
+  status: TaskStatus!
+  priority: Priority!
+  assignee: String
+  dueDate: DateTime
+  dependencies: [UUID!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# ---------------------------------------------------------------------------
+# Query
+# ---------------------------------------------------------------------------
+type Query {
+  plans(owner: String, limit: Int, offset: Int): [Plan!]!
+  plan(id: UUID!): Plan
+  tasks(planId: UUID!, status: TaskStatus, assignee: String): [Task!]!
+  task(id: UUID!): Task
+}
+
+# ---------------------------------------------------------------------------
+# Mutations
+# ---------------------------------------------------------------------------
+type Mutation {
+  createPlan(input: CreatePlanInput!): Plan!
+  updatePlan(id: UUID!, input: UpdatePlanInput!): Plan!
+  deletePlan(id: UUID!): Boolean!
+
+  addTask(input: AddTaskInput!): Task!
+  updateTask(id: UUID!, input: UpdateTaskInput!): Task!
+  deleteTask(id: UUID!): Boolean!
+}
+
+# ---------------------------------------------------------------------------
+# Inputs
+# ---------------------------------------------------------------------------
+input CreatePlanInput {
+  title: String!
+  description: String
+  owner: String
+}
+
+input UpdatePlanInput {
+  title: String
+  description: String
+  owner: String
+}
+
+input AddTaskInput {
+  planId: UUID!
+  title: String!
+  description: String
+  priority: Priority
+  assignee: String
+  dueDate: DateTime
+  dependencies: [UUID!]
+}
+
+input UpdateTaskInput {
+  title: String
+  description: String
+  status: TaskStatus
+  priority: Priority
+  assignee: String
+  dueDate: DateTime
+  dependencies: [UUID!]
+}
