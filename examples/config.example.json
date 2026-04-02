@@ -1,0 +1,23 @@
+{
+  "server_name": "my-graphql-mcp-server",
+  "server_version": "0.1.0",
+  "log_level": "INFO",
+  "endpoints": [
+    {
+      "name": "countries",
+      "url": "https://countries.trevorblades.com/",
+      "headers": {},
+      "timeout": 30,
+      "introspection_enabled": true
+    },
+    {
+      "name": "my_api",
+      "url": "https://api.example.com/graphql",
+      "headers": {
+        "Authorization": "Bearer $MY_API_TOKEN"
+      },
+      "timeout": 60,
+      "introspection_enabled": true
+    }
+  ]
+}
